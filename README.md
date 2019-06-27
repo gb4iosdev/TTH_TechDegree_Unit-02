@@ -1,1 +1,1 @@
-# TTH_TechDegree_Unit-02
+# Team Treehouse TechDegree Project 2
