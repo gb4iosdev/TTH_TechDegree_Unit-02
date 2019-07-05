@@ -33,12 +33,15 @@ class ViewController: UIViewController {
     @IBOutlet weak var button4: UIButton!
     @IBOutlet weak var playAgainButton: UIButton!
 
+    @IBOutlet weak var backGroundImageView: UIImageView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         loadGameStartSound()
         playGameStartSound()
         buttons = [button1, button2, button3, button4]
+        
         displayQuestion()
     }
     
@@ -51,13 +54,14 @@ class ViewController: UIViewController {
     }
     
     func playGameStartSound() {
-        AudioServicesPlaySystemSound(gameSound)
+        //AudioServicesPlaySystemSound(gameSound)
     }
     
     func displayQuestion() {
         indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextInt(upperBound: trivia.questions.count)
         let thisQuestionObject = trivia.questions[indexOfSelectedQuestion]
         questionField.text = thisQuestionObject.question
+        backGroundImageView.image = UIImage(named: thisQuestionObject.imageName)
         //Display the answer choices on the buttons
         for (index, answerChoice) in thisQuestionObject.answers.enumerated() {
             buttons[index].isHidden = false
@@ -147,6 +151,8 @@ class ViewController: UIViewController {
         
         questionsAsked = 0
         correctQuestions = 0
+        //reset the trivia
+        trivia = Trivia()
         nextRound()
     }
     

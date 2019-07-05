@@ -10,8 +10,9 @@ import Foundation
 
 struct Question {
 
-    var question: String
-    var answers: [String]
-    var correctAnswer: Int     //The array position of the correct answer
+    let question: String
+    let answers: [String]
+    let correctAnswer: Int     //The array position of the correct answer
+    let imageName: String
     
 }
