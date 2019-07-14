@@ -8,13 +8,12 @@
 
 import UIKit
 import GameKit
-import AudioToolbox
 
 class ViewController: UIViewController {
     
     // MARK: - Properties
     
-    let questionsPerRound = 4
+    let questionsPerRound = 7
     var indexOfSelectedQuestion = 0
     var timerMax = 15
     var questionsAsked = 1 {
@@ -28,7 +27,7 @@ class ViewController: UIViewController {
     }
     
     var buttons: [UIButton] = []        // Convenience collection
-    var resultImageViews: [UIImageView] = []
+    var resultImageViews: [UIImageView] = []    // Convenience collection
     
     var gameSound: SystemSoundID = 0
     
@@ -36,7 +35,7 @@ class ViewController: UIViewController {
     
     var timer = Timer()
     
-    var buttonDefaultColor = UIColor(red: 0.0470588, green: 0.47451, blue: 0.588235, alpha: 1.0)
+    let soundPlayer = SoundPlayer()
     
     // MARK: - Outlets
     
@@ -63,15 +62,14 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadGameStartSound()
-        playGameStartSound()
+        //loadGameStartSound()
+        //playGameStartSound()
+        soundPlayer.playRandomBackgroundSound()
         buttons = [button1, button2, button3, button4]
         resultImageViews = [resultImageView1, resultImageView2, resultImageView3, resultImageView4]
         questionsPerRoundLabel.text = String(questionsPerRound)
         
         displayQuestion()
-        
-        print ("B1 background colour is: \(button1.backgroundColor)")
         
         startTimer()
     }
@@ -106,6 +104,7 @@ class ViewController: UIViewController {
     func loadNextRound(delay seconds: Int) {
         //fade out the buttons
         self.animateButtonsAppearance(withFadeOut: true)
+        
         // Converts a delay in seconds to nanoseconds as signed 64 bit integer
         let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
         // Calculates a time value to execute the method given current time and delay
@@ -121,14 +120,17 @@ class ViewController: UIViewController {
         if questionsAsked == questionsPerRound {
             // Game is over
             displayScore()
+            //backgroundSoundEffect?.setVolume(0, fadeDuration: 2.0)
         } else {
             // Remove the question from the trivia questions array and continue game
             trivia.questions.remove(at: indexOfSelectedQuestion)
             removeButtonBorders()
-            resetButtonColors()
+            resetButtonAlphas()
             timerCount = timerMax
             // Increment the questions asked counter
             questionsAsked += 1
+            //Restore font in question field
+            questionField.font = questionField.font.withSize(20)
             displayQuestion()
             startTimer()
         }
@@ -163,6 +165,9 @@ class ViewController: UIViewController {
             default: break
         }
         
+        //Emphasize font in question field
+        
+        questionField.font = questionField.font.withSize(30)
         if userAnswer == correctAnswer {
             correctQuestions += 1
             questionField.text = "Correct!"
@@ -173,16 +178,16 @@ class ViewController: UIViewController {
             resultImageViews[userAnswer].isHidden = false
             resultImageViews[userAnswer].image = UIImage(named: "wrong_white")
         }
+        
         //Indicate correct button
         resultImageViews[correctAnswer].alpha = 0.7
         resultImageViews[correctAnswer].isHidden = false
         resultImageViews[correctAnswer].image = UIImage(named: "correct_white")
         
-        //Make non-chosen buttons grey
+        //Fade non-chosen buttons
         for index in 0..<buttons.count {
             if index != userAnswer && index != correctAnswer {
-                buttons[index].backgroundColor = UIColor.gray
-                buttons[index].setTitleColor(UIColor.lightGray, for: .normal)
+                animateAlpha(forView: buttons[index], toAlpha: 0.6)
             }
         }
         
@@ -215,6 +220,7 @@ class ViewController: UIViewController {
         correctQuestions = 0
         //reset the trivia
         trivia = Trivia()
+        //soundPlayer.playRandomBackgroundSound()
         nextRound()
     }
     
@@ -232,7 +238,6 @@ class ViewController: UIViewController {
                 timer.invalidate()
                 //Display message:
                 self.questionField.text = "Timed Out!"
-                self.questionsAsked += 1
                 self.loadNextRound(delay: 2)
             }
         }
@@ -243,18 +248,6 @@ class ViewController: UIViewController {
 }
 
 extension ViewController {
-    
-    // MARK: - Helpers
-    
-    func loadGameStartSound() {
-        let path = Bundle.main.path(forResource: "GameSound", ofType: "wav")
-        let soundUrl = URL(fileURLWithPath: path!)
-        AudioServicesCreateSystemSoundID(soundUrl as CFURL, &gameSound)
-    }
-    
-    func playGameStartSound() {
-        //AudioServicesPlaySystemSound(gameSound)
-    }
     
     // MARK: - Animators
     
@@ -300,10 +293,9 @@ extension ViewController {
         }
     }
     
-    func resetButtonColors() {
+    func resetButtonAlphas() {
         for button in buttons {
-            button.backgroundColor = buttonDefaultColor
-            button.setTitleColor(UIColor.white, for: .normal)
+            button.alpha = 1.0
         }
     }
 }
