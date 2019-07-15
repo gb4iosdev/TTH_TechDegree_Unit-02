@@ -5,6 +5,11 @@
 //  Created by Pasan Premaratne on 3/12/18.
 //  Copyright © 2018 Treehouse. All rights reserved.
 //
+//  Attributions:
+//  Quiz Questions: https://www.theguardian.com/tv-and-radio/quiz/2015/apr/11/game-of-thrones-quiz
+//  Theme sounds:   https://www.youtube.com/watch?v=Hf9u3jPvkkI
+//                  https://www.youtube.com/watch?v=-d7J_QVX2U4
+//                  https://www.youtube.com/watch?v=yZGBxiNPu3k
 
 import UIKit
 import GameKit
@@ -14,6 +19,7 @@ class ViewController: UIViewController {
     // MARK: - Properties
     
     let questionsPerRound = 7
+    let roundDelay = 3    //delay between questions
     var indexOfSelectedQuestion = 0
     var timerMax = 15
     var questionsAsked = 1 {
@@ -29,13 +35,18 @@ class ViewController: UIViewController {
     var buttons: [UIButton] = []        // Convenience collection
     var resultImageViews: [UIImageView] = []    // Convenience collection
     
-    var gameSound: SystemSoundID = 0
-    
-    var trivia = Trivia()
+    var trivia = Trivia()   // Class containing questions
     
     var timer = Timer()
     
     let soundPlayer = SoundPlayer()
+    
+    // For emphasiszing questionField font when providing results feedback to user
+    let questionFieldLargeFontSize: CGFloat = 30.0
+    let questionFieldStandardFontSize:CGFloat = 20.0
+    
+    // Duration for alpha transitions - answer buttons, play again button, results icons fading in/out etc
+    var animationDuration = 0.5
     
     // MARK: - Outlets
     
@@ -62,11 +73,16 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //loadGameStartSound()
-        //playGameStartSound()
+        //Load answer result feedback sounds
+        soundPlayer.loadAnswerSounds()
+        
+        //Choose randome theme sound for repeated loop
         soundPlayer.playRandomBackgroundSound()
+        
+        //Create button and result icon convenience collections
         buttons = [button1, button2, button3, button4]
         resultImageViews = [resultImageView1, resultImageView2, resultImageView3, resultImageView4]
+        
         questionsPerRoundLabel.text = String(questionsPerRound)
         
         displayQuestion()
@@ -75,9 +91,13 @@ class ViewController: UIViewController {
     }
     
     func displayQuestion() {
+        
+        //Select and display question:
         indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextInt(upperBound: trivia.questions.count)
         let thisQuestionObject = trivia.questions[indexOfSelectedQuestion]
         questionField.text = thisQuestionObject.question
+        
+        //Display associated Image
         backGroundImageView.image = UIImage(named: thisQuestionObject.imageName)
         
         //Display the answer choices on the buttons & enable
@@ -97,7 +117,7 @@ class ViewController: UIViewController {
             }
         }
         
-        //playAgainButton.isHidden = true
+        //Ensure playAgainButton is faded to not visible
         animateAlpha(forView: playAgainButton, toAlpha: 0.0)
     }
     
@@ -120,18 +140,22 @@ class ViewController: UIViewController {
         if questionsAsked == questionsPerRound {
             // Game is over
             displayScore()
-            //backgroundSoundEffect?.setVolume(0, fadeDuration: 2.0)
         } else {
             // Remove the question from the trivia questions array and continue game
             trivia.questions.remove(at: indexOfSelectedQuestion)
+            
+            //Prepare UI for next round:
             removeButtonBorders()
             resetButtonAlphas()
-            timerCount = timerMax
+            questionField.font = questionField.font.withSize(questionFieldStandardFontSize) //Restore font in question field
+            
             // Increment the questions asked counter
             questionsAsked += 1
-            //Restore font in question field
-            questionField.font = questionField.font.withSize(20)
+            
             displayQuestion()
+            
+            // Rest the timer
+            timerCount = timerMax
             startTimer()
         }
     }
@@ -147,9 +171,6 @@ class ViewController: UIViewController {
         sender.layer.borderColor = UIColor.white.cgColor
         
         disableButtons()
-
-        // Increment the questions asked counter
-        //questionsAsked += 1
         
         var userAnswer = 0
         
@@ -166,13 +187,15 @@ class ViewController: UIViewController {
         }
         
         //Emphasize font in question field
+        questionField.font = questionField.font.withSize(questionFieldLargeFontSize)
         
-        questionField.font = questionField.font.withSize(30)
         if userAnswer == correctAnswer {
             correctQuestions += 1
             questionField.text = "Correct!"
+            soundPlayer.playCorrectAnswerSound()
         } else {
             questionField.text = "Sorry, wrong answer!"
+            soundPlayer.playIncorrectAnswerSound()
             //Indicate incorrect button
             resultImageViews[userAnswer].alpha = 0.7
             resultImageViews[userAnswer].isHidden = false
@@ -191,7 +214,7 @@ class ViewController: UIViewController {
             }
         }
         
-        loadNextRound(delay: 2)
+        loadNextRound(delay: roundDelay)
     }
     
     func displayScore() {
@@ -220,9 +243,13 @@ class ViewController: UIViewController {
         correctQuestions = 0
         //reset the trivia
         trivia = Trivia()
-        //soundPlayer.playRandomBackgroundSound()
         nextRound()
     }
+}
+
+extension ViewController {
+    
+    // MARK: - Timer
     
     func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
@@ -236,18 +263,15 @@ class ViewController: UIViewController {
                 }
                 //Stop the timer, update & display game statistics, load next round:
                 timer.invalidate()
+                
                 //Display message:
+                //Emphasize font in question field
+                self.questionField.font = self.questionField.font.withSize(self.questionFieldLargeFontSize)
                 self.questionField.text = "Timed Out!"
-                self.loadNextRound(delay: 2)
+                self.loadNextRound(delay: self.roundDelay)
             }
         }
     }
-    
-    
-    
-}
-
-extension ViewController {
     
     // MARK: - Animators
     
@@ -270,7 +294,7 @@ extension ViewController {
     
     func animateAlpha(forView animatedView: UIView, toAlpha alpha: CGFloat, withDelay delayTimeInterval: Double = 0) {
         
-        UIView.animate(withDuration: 0.5,
+        UIView.animate(withDuration: animationDuration,
                        delay: delayTimeInterval,
                        options: [UIViewAnimationOptions.curveLinear],
                        animations: {
