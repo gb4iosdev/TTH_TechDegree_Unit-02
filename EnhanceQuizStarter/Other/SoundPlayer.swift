@@ -57,6 +57,4 @@ class SoundPlayer {
         AudioServicesPlaySystemSound(inCorrectAnswerSound)
     }
     
-    //loadGameStartSound()
-    //playGameStartSound()
 }
