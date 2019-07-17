@@ -18,28 +18,27 @@ class ViewController: UIViewController {
     
     // MARK: - Properties
     
-    let questionsPerRound = 7
     let roundDelay = 3    //delay between questions
-    var indexOfSelectedQuestion = 0
     var timerMax = 15
-    var questionsAsked = 1 {
+    var questionsAsked = 1 {    //Purpose is to update the UI only
         didSet { questionsAskedLabel.text = String(questionsAsked) }
     }
-    var correctQuestions = 0 {
+    var correctQuestions = 0 {  //Purpose is to update the UI only
         didSet { correctAnswersLabel.text = String(correctQuestions) }
     }
     var timerCount = 15 {
         didSet { timerOutputLabel.text = String(timerCount) }
     }
     
-    var buttons: [UIButton] = []        // Convenience collection
+    var buttons: [UIButton] = []                // Convenience collection
     var resultImageViews: [UIImageView] = []    // Convenience collection
-    
-    var trivia = Trivia()   // Class containing questions
     
     var timer = Timer()
     
     let soundPlayer = SoundPlayer()
+    
+    //Create the game manager
+    let gameManager = GameManager()
     
     // For emphasiszing questionField font when providing results feedback to user
     let questionFieldLargeFontSize: CGFloat = 30.0
@@ -73,17 +72,20 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Connect the gameManager (to achieve UI game status updates)
+        gameManager.delegateUIViewController = self
+        
         //Load answer result feedback sounds
         soundPlayer.loadAnswerSounds()
         
-        //Choose randome theme sound for repeated loop
+        //Choose random theme sound for repeated loop
         soundPlayer.playRandomBackgroundSound()
         
         //Create button and result icon convenience collections
         buttons = [button1, button2, button3, button4]
         resultImageViews = [resultImageView1, resultImageView2, resultImageView3, resultImageView4]
         
-        questionsPerRoundLabel.text = String(questionsPerRound)
+        questionsPerRoundLabel.text = String(gameManager.questionsPerRound)
         
         displayQuestion()
         
@@ -92,13 +94,12 @@ class ViewController: UIViewController {
     
     func displayQuestion() {
         
-        //Select and display question:
-        indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextInt(upperBound: trivia.questions.count)
-        let thisQuestionObject = trivia.questions[indexOfSelectedQuestion]
-        questionField.text = thisQuestionObject.question
+        let thisQuestionObject = gameManager.nextQuestion()
         
-        //Display associated Image
+        //Update the UI:
+        questionField.text = thisQuestionObject.question
         backGroundImageView.image = UIImage(named: thisQuestionObject.imageName)
+
         
         //Display the answer choices on the buttons & enable
         for (index, answerChoice) in thisQuestionObject.answers.enumerated() {
@@ -110,13 +111,11 @@ class ViewController: UIViewController {
         
         animateButtonsAppearance()
         
-        //  Hide any buttons that don’t have an answer choice (if number of choices < number of buttons)
-        if buttons.count > thisQuestionObject.answers.count {
-            for index in thisQuestionObject.answers.count..<buttons.count {
-                buttons[index].isHidden = true
-            }
+        //  Hide any buttons that don’t have an answer choice
+        for index in gameManager.numberOfAnswerChoices()..<buttons.count {
+            buttons[index].isHidden = true
         }
-        
+
         //Ensure playAgainButton is faded to not visible
         animateAlpha(forView: playAgainButton, toAlpha: 0.0)
     }
@@ -137,20 +136,14 @@ class ViewController: UIViewController {
     }
     
     func nextRound() {
-        if questionsAsked == questionsPerRound {
-            // Game is over
+        
+        if gameManager.isLastRound {
             displayScore()
         } else {
-            // Remove the question from the trivia questions array and continue game
-            trivia.questions.remove(at: indexOfSelectedQuestion)
-            
             //Prepare UI for next round:
             removeButtonBorders()
             resetButtonAlphas()
             questionField.font = questionField.font.withSize(questionFieldStandardFontSize) //Restore font in question field
-            
-            // Increment the questions asked counter
-            questionsAsked += 1
             
             displayQuestion()
             
@@ -174,10 +167,7 @@ class ViewController: UIViewController {
         
         var userAnswer = 0
         
-        //Determine the correct answer
-        let selectedQuestionDict = trivia.questions[indexOfSelectedQuestion]
-        let correctAnswer = selectedQuestionDict.correctAnswer
-        
+        //Map selected button to answer index
         switch sender {
             case button1:    userAnswer = 0
             case button2:    userAnswer = 1
@@ -188,6 +178,8 @@ class ViewController: UIViewController {
         
         //Emphasize font in question field
         questionField.font = questionField.font.withSize(questionFieldLargeFontSize)
+        
+        let correctAnswer = gameManager.correctAnswer()
         
         if userAnswer == correctAnswer {
             correctQuestions += 1
@@ -227,11 +219,8 @@ class ViewController: UIViewController {
         playAgainButton.isUserInteractionEnabled = true
         animateAlpha(forView: playAgainButton, toAlpha: 1.0)
         
-        if correctQuestions > 0 {
-            questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
-        } else {
-            questionField.text = "You didn’t get any correct answers but don’t worry, your score is still better than season 8 ratings.  Better luck next time!"
-        }
+        //Display result
+        questionField.text = gameManager.presentResult()
     }
     
     @IBAction func playAgain(_ sender: UIButton) {
@@ -239,15 +228,23 @@ class ViewController: UIViewController {
         sender.isUserInteractionEnabled = false
         animateAlpha(forView: sender, toAlpha: 0.0)
         
-        questionsAsked = 0
-        correctQuestions = 0
-        //reset the trivia
-        trivia = Trivia()
+        gameManager.reset()
+        
         nextRound()
     }
 }
 
-extension ViewController {
+extension ViewController: StatusDisplayDelegate {
+    
+    // MARK: - Delegate methods
+    
+    func setQuestionsAskedTo(_ val: Int) {
+        questionsAsked = val
+    }
+    
+    func setCorrectQuestionsTo(_ val: Int) {
+        correctQuestions = val
+    }
     
     // MARK: - Timer
     
@@ -322,5 +319,6 @@ extension ViewController {
             button.alpha = 1.0
         }
     }
+    
 }
 

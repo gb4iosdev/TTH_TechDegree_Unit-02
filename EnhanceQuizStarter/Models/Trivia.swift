@@ -12,7 +12,7 @@ struct Trivia {
     
     //Acknowledgements: https://www.theguardian.com/tv-and-radio/quiz/2015/apr/11/game-of-thrones-quiz
     
-    var questions: [Question] = [
+    static var questions: [Question] = [
         Question(question: "Who was responsible for the creation of the Night King", answers:
             ["The Lord of Light",
              "The Children of the Forest",

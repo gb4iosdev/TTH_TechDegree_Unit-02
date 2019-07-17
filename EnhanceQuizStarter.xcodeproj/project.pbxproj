@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		86028A8422DB4725008A142B /* SoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86028A8322DB4725008A142B /* SoundPlayer.swift */; };
+		8628B9E422DE80F100719FC5 /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8628B9E322DE80F100719FC5 /* GameManager.swift */; };
 		86454D1722C8CC3E001E8720 /* Question.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86454D1622C8CC3E001E8720 /* Question.swift */; };
 		86B0E1B122CA19FE0014C034 /* Trivia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86B0E1B022CA19FE0014C034 /* Trivia.swift */; };
 		86F6023522DB90530077BA88 /* gotAlternateTheme1.wav in Resources */ = {isa = PBXBuildFile; fileRef = 86F6023222DB90510077BA88 /* gotAlternateTheme1.wav */; };
@@ -25,6 +26,7 @@
 
 /* Begin PBXFileReference section */
 		86028A8322DB4725008A142B /* SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPlayer.swift; sourceTree = "<group>"; };
+		8628B9E322DE80F100719FC5 /* GameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManager.swift; sourceTree = "<group>"; };
 		86454D1622C8CC3E001E8720 /* Question.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Question.swift; sourceTree = "<group>"; };
 		86B0E1B022CA19FE0014C034 /* Trivia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trivia.swift; sourceTree = "<group>"; };
 		86F6023222DB90510077BA88 /* gotAlternateTheme1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = gotAlternateTheme1.wav; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				972A72B22056F06C0059EF4A /* ViewController.swift */,
+				8628B9E322DE80F100719FC5 /* GameManager.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -194,6 +197,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				86028A8422DB4725008A142B /* SoundPlayer.swift in Sources */,
+				8628B9E422DE80F100719FC5 /* GameManager.swift in Sources */,
 				86454D1722C8CC3E001E8720 /* Question.swift in Sources */,
 				972A72B32056F06C0059EF4A /* ViewController.swift in Sources */,
 				86B0E1B122CA19FE0014C034 /* Trivia.swift in Sources */,

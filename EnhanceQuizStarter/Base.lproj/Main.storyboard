@@ -308,7 +308,7 @@
                         <outlet property="correctAnswersLabel" destination="2gd-pu-uCh" id="uW9-NG-Plt"/>
                         <outlet property="playAgainButton" destination="eic-Nx-foS" id="fZz-Md-Y70"/>
                         <outlet property="questionField" destination="dCF-BL-dDa" id="HIQ-UX-KNe"/>
-                        <outlet property="questionsAskedLabel" destination="C6r-GJ-Tiz" id="Cym-4w-uZg"/>
+                        <outlet property="questionsAskedLabel" destination="C6r-GJ-Tiz" id="2FS-h0-ARV"/>
                         <outlet property="questionsPerRoundLabel" destination="jF2-lM-xC3" id="56x-GA-18C"/>
                         <outlet property="resultImageView1" destination="QOn-Ff-JZt" id="GLV-bQ-6wT"/>
                         <outlet property="resultImageView2" destination="ueX-8e-FGK" id="72j-Di-fxD"/>
