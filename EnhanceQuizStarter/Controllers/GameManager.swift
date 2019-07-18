@@ -6,11 +6,6 @@
 //  Copyright © 2019 Treehouse. All rights reserved.
 //
 
-protocol StatusDisplayDelegate: class {
-    func setQuestionsAskedTo(_ val: Int)
-    func setCorrectQuestionsTo(_ val: Int)
-}
-
 import Foundation
 import UIKit
 
@@ -18,19 +13,17 @@ class GameManager {
     
     let questionsPerRound = 7
     
-    weak var delegateUIViewController: StatusDisplayDelegate?
+    private var questionIndex = -1
     
-    var questionIndex = -1 {
-        didSet { delegateUIViewController?.setQuestionsAskedTo(questionIndex + 1)}
+    var questionsAsked: String {
+        return String(questionIndex + 1)
     }
     
     var isLastRound: Bool {
         return questionIndex == questionsPerRound - 1
     }
     
-    var correctQuestions = 0 {
-        didSet { delegateUIViewController?.setCorrectQuestionsTo(correctQuestions) }
-    }
+    var correctAnswers = 0
     
     var currentQuestion: Question?
     
@@ -38,7 +31,7 @@ class GameManager {
         
         //Reset question index to start point;  re-shuffle the Trivia questions
         questionIndex = -1
-        correctQuestions = 0
+        correctAnswers = 0
         Trivia.questions.shuffle()
     }
     
@@ -56,13 +49,24 @@ class GameManager {
     }
     
     func correctAnswer() -> Int {
+        //Returns the correct answer for the current question
         return currentQuestion!.correctAnswer
+    }
+    
+    func isCorrectAnswer(_ userAnswer: Int) -> Bool {
+        //Returns true if user answer is correct and updates correctAnswers
+        if userAnswer == correctAnswer() {
+            correctAnswers += 1
+            return true
+        } else {
+            return false
+        }
     }
     
     func presentResult() -> String {
         
-        if correctQuestions > 0 {
-            return "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
+        if correctAnswers > 0 {
+            return "Way to go!\nYou got \(correctAnswers) out of \(questionsPerRound) correct!"
         } else {
             return "You didn’t get any correct answers but don’t worry, your score is still better than season 8 ratings.  Better luck next time!"
         }

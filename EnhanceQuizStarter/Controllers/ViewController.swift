@@ -20,12 +20,7 @@ class ViewController: UIViewController {
     
     let roundDelay = 3    //delay between questions
     var timerMax = 15
-    var questionsAsked = 1 {    //Purpose is to update the UI only
-        didSet { questionsAskedLabel.text = String(questionsAsked) }
-    }
-    var correctQuestions = 0 {  //Purpose is to update the UI only
-        didSet { correctAnswersLabel.text = String(correctQuestions) }
-    }
+
     var timerCount = 15 {
         didSet { timerOutputLabel.text = String(timerCount) }
     }
@@ -72,9 +67,6 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Connect the gameManager (to achieve UI game status updates)
-        gameManager.delegateUIViewController = self
-        
         //Load answer result feedback sounds
         soundPlayer.loadAnswerSounds()
         
@@ -99,6 +91,7 @@ class ViewController: UIViewController {
         //Update the UI:
         questionField.text = thisQuestionObject.question
         backGroundImageView.image = UIImage(named: thisQuestionObject.imageName)
+        questionsAskedLabel.text = gameManager.questionsAsked
 
         
         //Display the answer choices on the buttons & enable
@@ -181,9 +174,9 @@ class ViewController: UIViewController {
         
         let correctAnswer = gameManager.correctAnswer()
         
-        if userAnswer == correctAnswer {
-            correctQuestions += 1
+        if gameManager.isCorrectAnswer(userAnswer){
             questionField.text = "Correct!"
+            correctAnswersLabel.text = String(gameManager.correctAnswers)
             soundPlayer.playCorrectAnswerSound()
         } else {
             questionField.text = "Sorry, wrong answer!"
@@ -234,17 +227,7 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: StatusDisplayDelegate {
-    
-    // MARK: - Delegate methods
-    
-    func setQuestionsAskedTo(_ val: Int) {
-        questionsAsked = val
-    }
-    
-    func setCorrectQuestionsTo(_ val: Int) {
-        correctQuestions = val
-    }
+extension ViewController {
     
     // MARK: - Timer
     
