@@ -9,4 +9,5 @@ Autolayout, MVC & Singleton Design Patterns,  Classes, Structs, AVAudioPlayer, A
 
 **Screenshots:**
 
-![](./ScreenShots/TD_P2_01.png)
+![](./ScreenShots/TD_P2_01.png)![](./ScreenShots/TD_P2_02.png)
+![](./ScreenShots/TD_P2_04.png)
